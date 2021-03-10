@@ -8,63 +8,60 @@
 
 import UIKit
 
+enum CurrentLight {
+	case red, yellow, green
+}
+
 class ViewController: UIViewController {
     
     // MARK: - IB Outlets
     @IBOutlet var redView: UIView!
     @IBOutlet var yellowView: UIView!
     @IBOutlet var greenView: UIView!
+
     @IBOutlet var startButton: UIButton!
     
     // MARK: - Private Propeties
-    private let lightOff: CGFloat = 0.3
-    private let lightOn: CGFloat = 1
+	private var currentLight = CurrentLight.red
+    private let lightIsOff: CGFloat = 0.3
+    private let lightIsOn: CGFloat = 1
     
     // MARK: - Life Cycle Method
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let halfSideSquare = redView.frame.size.width / 2
-        let buttonRounding: CGFloat = 10
-        
-        redView.alpha = lightOff
-        yellowView.alpha = lightOff
-        greenView.alpha = lightOff
-        
-        redView.layer.cornerRadius = halfSideSquare
-        yellowView.layer.cornerRadius = halfSideSquare
-        greenView.layer.cornerRadius = halfSideSquare
-        startButton.layer.cornerRadius = buttonRounding
+
+		startButton.layer.cornerRadius = 10
+
+        redView.alpha = lightIsOff
+        yellowView.alpha = lightIsOff
+        greenView.alpha = lightIsOff
     }
+
+	override func viewWillLayoutSubviews() {
+		redView.layer.cornerRadius = redView.frame.size.width / 2
+		yellowView.layer.cornerRadius = yellowView.frame.size.width / 2
+		greenView.layer.cornerRadius = greenView.frame.size.width / 2
+	}
     
     // MARK: - IB Action
     @IBAction func switchTrafficLightButtonPressed() {
-        
-        let trafficLightColors = (roundingToTenths(redView.alpha),
-                                  roundingToTenths(yellowView.alpha),
-                                  roundingToTenths(greenView.alpha))
-        
-        switch trafficLightColors {
-        case (lightOff, lightOff, lightOff):
-            redView.alpha = lightOn
-            startButton.setTitle("NEXT", for: .normal)
-        case (lightOn, _, _):
-            redView.alpha = lightOff
-            yellowView.alpha = lightOn
-        case (_, lightOn, _):
-            yellowView.alpha = lightOff
-            greenView.alpha = lightOn
-        case (_, _, lightOn):
-            greenView.alpha = lightOff
-            redView.alpha = lightOn
-        default:
-            break
-        }
-    }
-    
-    // MARK: - Private Method
-    func roundingToTenths(_ viewAlpha: CGFloat) -> CGFloat {
-        return round(viewAlpha * 10) / 10
+
+		startButton.setTitle("NEXT", for: .normal)
+
+		switch currentLight {
+		case .red:
+			redView.alpha = lightIsOn
+			greenView.alpha = lightIsOff
+			currentLight = .yellow
+		case .yellow:
+			redView.alpha = lightIsOff
+			yellowView.alpha = lightIsOn
+			currentLight = .green
+		case .green:
+			yellowView.alpha = lightIsOff
+			greenView.alpha = lightIsOn
+			currentLight = .red
+		}
     }
 }
 
